@@ -1,4 +1,8 @@
 run = "python main.py"
+modules = ["python-3.11"]
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[nix]
+packages = ["python310Full"]

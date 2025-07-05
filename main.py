@@ -1,35 +1,16 @@
-from random import randint
-from click import pass_context
 import discord
 import random
-import asyncio
-from discord.ext.commands import Bot
 from keep_alive import keep_alive
 import os
 
-TOKEN = os.getenv("DISCORD_TOKEN")
-
-client = discord.Client()
-# intents = discord.Intents.default()
-# intents.message_content = True
-
-# client = discord.Client(intents=intents)
-
+TOKEN = os.environ['DISCORD_TOKEN']
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
     print("{0.user} is online".format(client))
-
-
-# Client = "!"
-# @Client.command(pass_context = True)
-# async def clear(ctx, number):
-#     mgs = [] #Empty list to put all the messages in the log
-#     number = int(number) #Converting the amount of messages to delete to an integer
-#     async for x in Client.logs_from(ctx.message.channel, limit = number):
-#         mgs.append(x)
-#     await Client.delete_messages(mgs)
-
 
 @client.event
 async def on_message(message):

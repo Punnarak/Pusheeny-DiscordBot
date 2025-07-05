@@ -1,0 +1,25 @@
+[project]
+name = "workspace"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.poetry]
+name = "pusheeny-discordbot"
+version = "0.1.0"
+description = "discord bot"
+authors = ["Punnarak <50368218+Punnarak@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+discord-py = "^2.5.2"
+flask = "^3.1.1"
+async-timeout = "^5.0.1"
+click = "^8.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
