@@ -76,12 +76,12 @@ async def on_message(message):
         if list:
             for item in list:
                 await message.channel.send(item)
-        # ลบ ตามชื่อ หรือ ตามเลขลำดับ
-        elif message.content.startswith("!del"):
-            await add_xp(message.author,
-                         amount=4,
-                         context_channel=message.channel)
-            await message.channel.send(dfl.delete_action(message.content))
+    # ลบ ตามชื่อ หรือ ตามเลขลำดับ
+    elif message.content.startswith("!del"):
+        await add_xp(message.author,
+                     amount=4,
+                     context_channel=message.channel)
+        await message.channel.send(dfl.delete_action(message.content))
     # Random meme from Reddit
     elif message.content.startswith("!meme"):
         await add_xp(message.author, amount=4, context_channel=message.channel)
