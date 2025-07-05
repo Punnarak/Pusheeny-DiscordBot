@@ -10,6 +10,7 @@ import actions.delete_from_list as dfl
 import requests
 from levels.level_system import get_leaderboard
 from typing import Optional
+from discord import Embed
 # 👇 นำเข้าโมดูลจากโฟลเดอร์ levels
 from levels.level_system import (add_xp, show_level, create_voice_xp_task)
 
@@ -183,15 +184,35 @@ async def level(ctx, member: Optional[discord.Member] = None):
 async def leaderboard(ctx):
     top_users = get_leaderboard()
     if not top_users:
-        await ctx.send("ยังไม่มีข้อมูลเลเวล")
+        await ctx.send("📉 ยังไม่มีข้อมูลเลเวลในระบบเลยค่ะ!")
         return
 
-    leaderboard_text = "**🏆 Leaderboard:**\n"
-    for index, (user_id, stats) in enumerate(top_users, start=1):
-        user = await bot.fetch_user(int(user_id))
-        leaderboard_text += f"{index}. {user.name} - Level {stats['level']} ({stats['xp']} XP)\n"
+    medals = ["🥇", "🥈", "🥉"]
 
-    await ctx.send(leaderboard_text)
+    for index, (user_id, stats) in enumerate(top_users, start=1):
+        try:
+            user = await bot.fetch_user(int(user_id))
+            name = f"{user.mention}"  # จะ tag user
+            avatar_url = user.avatar.url if user.avatar else user.default_avatar.url
+        except:
+            name = f"User ID {user_id}"
+            avatar_url = None
+
+        medal = medals[index - 1] if index <= 3 else f"#{index}"
+        level = stats["level"]
+        xp = stats["xp"]
+
+        embed = Embed(
+            title=f"{medal} อันดับที่ {index}",
+            description=f"👤 {name}\n⭐ Level: `{level}` | ✨ XP: `{xp}`",
+            color=discord.Color.gold())
+
+        if avatar_url:
+            embed.set_thumbnail(url=avatar_url)
+
+        await ctx.send(embed=embed)
+
+    await ctx.send("📊 อัปเดตทุกครั้งที่มีคนใช้บอทหรือส่งข้อความ")
 
 
 keep_alive()
