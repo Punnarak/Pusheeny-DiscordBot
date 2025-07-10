@@ -4,7 +4,7 @@ import discord
 import aiohttp
 
 
-class RandomFromExternalSrc(commands.Cog):
+class RandomPokemon(commands.Cog):
 
   def __init__(self, bot):
     self.bot = bot
@@ -91,4 +91,4 @@ class RandomFromExternalSrc(commands.Cog):
 
 
 async def setup(bot):
-  await bot.add_cog(RandomFromExternalSrc(bot))
+  await bot.add_cog(RandomPokemon(bot))

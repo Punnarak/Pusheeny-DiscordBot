@@ -24,10 +24,13 @@ voice_xp_task = create_voice_xp_task(bot)
 @bot.event
 async def on_ready():
     await bot.load_extension("actions.random_from_list")
+    await bot.load_extension("actions.random_from_external_src")
     await bot.load_extension("actions.get_from_list")
     await bot.load_extension("actions.add_to_list")
     await bot.load_extension("actions.delete_from_list")
     await bot.load_extension("actions.chat")
+    await bot.load_extension("actions.loop_tasks")
+    await bot.load_extension("actions.pusheeny_timer")
     await bot.load_extension("levels.level_command")
     await bot.load_extension("pokemon.random_pokemon")
     await bot.load_extension("pokemon.catch_pokemon")
@@ -102,46 +105,6 @@ async def on_message(message):
         # elif message.content.startswith("!clear") or message.content.startswith("/clear"):
     await bot.process_commands(message)
 
-
-# @bot.command(name='command')
-# async def command(message):
-#     embedc = discord.Embed(
-#         title='====== Command ======',
-#         url='https://www.instagram.com/pun_hasinanan/?utm_medium=copy_link',
-#         description="This is Pusheeny Command",
-#         color=0xFFC0CB
-#     ).set_image(
-#         url=
-#         'https://i.pinimg.com/originals/35/25/46/352546eccb66bb11200f99b9aa1268a8.gif'
-#     )
-#     embedc.add_field(name="!hello", value="hi", inline=False)
-#     embedc.add_field(name="!level", value="show your level", inline=False)
-#     embedc.add_field(name="!leaderboard",
-#                      value="show leaderboard of top 5",
-#                      inline=False)
-#     embedc.add_field(name="!meme",
-#                      value="random meme from Reddit",
-#                      inline=False)
-#     embedc.add_field(name="!showtime", value="check movie time", inline=False)
-#     embedc.add_field(
-#         name="!addfood",
-#         value=
-#         "add food in food list for randomization\nformat: !addfood <food>",
-#         inline=False)
-#     embedc.add_field(
-#         name="!delfood",
-#         value="delete food from food list\nformat: !delfood <food>",
-#         inline=False)
-#     embedc.add_field(name="!randfood", value="random food", inline=False)
-#     embedc.add_field(name="!eat r", value="random restaurant", inline=False)
-#     embedc.add_field(name="!do", value="random event", inline=False)
-#     embedc.add_field(name="!catchpokemon",
-#                      value="random pokemon",
-#                      inline=False)
-#     embedc.add_field(name="!command", value="show all command", inline=False)
-#     # embedVar.set_footer(text="✨Get Ticket at the bottom of the post")
-#     await add_xp(message.author, amount=4, context_channel=message.channel)
-#     await message.channel.send(embed=embedc)
 @bot.command(name="command", help="show all command")
 async def command(ctx):
     embedc = discord.Embed(title="✨ คำสั่งทั้งหมดของบอท ✨",
