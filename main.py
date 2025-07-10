@@ -20,39 +20,23 @@ intents.voice_states = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 voice_xp_task = create_voice_xp_task(bot)
 
-
 @bot.event
 async def on_ready():
-    await bot.load_extension("actions.random_from_list")
-    await bot.load_extension("actions.random_from_external_src")
-    await bot.load_extension("actions.get_from_list")
-    await bot.load_extension("actions.add_to_list")
-    await bot.load_extension("actions.delete_from_list")
-    await bot.load_extension("actions.chat")
-    await bot.load_extension("actions.loop_tasks")
-    await bot.load_extension("actions.pusheeny_timer")
-    await bot.load_extension("levels.level_command")
-    await bot.load_extension("pokemon.random_pokemon")
-    await bot.load_extension("pokemon.catch_pokemon")
-    await bot.load_extension("pokemon.my_pokemon")
-    await bot.load_extension("pokemon.release_pokemon")
-
+    await bot.load_extension("actions")
+    await bot.load_extension("levels")
+    await bot.load_extension("pokemon")
+    
     print(f"✅ Bot is ready: {bot.user}")
     print("📋 Registered commands:")
     for command in bot.commands:
         print(f"- {command.name}")
     voice_xp_task.start()
 
-
 @bot.event
 async def on_message(message):
     await add_xp(message.author, amount=1, context_channel=message.channel)
     if message.author.bot:
         return
-    elif message.content.startswith("!hello") or message.content.startswith(
-            "/hello"):
-        await add_xp(message.author, amount=4, context_channel=message.channel)
-        await message.channel.send("Hello from the other side!")
 
     elif message.content.startswith("!showtime") or message.content.startswith(
             "/showtime"):
@@ -70,16 +54,6 @@ async def on_message(message):
         embedVar.set_footer(text="✨Get Ticket at the bottom of the post")
         await add_xp(message.author, amount=4, context_channel=message.channel)
         await message.channel.send(embed=embedVar)
-    elif message.content.startswith("!eat r") or message.content.startswith(
-            "/eat r"):
-        restaurant = [
-            "น้องเนยส้มตำ", "เนื้อหนัง", "เจ๊หมวย", "เรือนจำนมสด",
-            "ลุงโตเกียว", "ไม่ตกไม่แตก", "นายอีฟ", "ย่างเนย", "ติดมันส์",
-            "MLC", "Seoul Good", "Kaikao"
-        ]  #12
-        i = random.randint(0, len(restaurant) - 1)
-        await add_xp(message.author, amount=4, context_channel=message.channel)
-        await message.channel.send(restaurant[i])
 
     elif message.content.startswith("!do") or message.content.startswith(
             "/do"):
@@ -126,6 +100,9 @@ async def command(ctx):
 
     await ctx.send(embed=embedc)
 
+@bot.command(name="hello", help="ทักทายน้องบอท!")
+async def hello(ctx):
+    await ctx.send("Hello from the other side!")
 
 @bot.listen("on_command")
 async def on_command(ctx):
