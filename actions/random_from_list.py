@@ -8,22 +8,22 @@ class RandAction(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # async def random_item_from_list(self, ctx, type):
-    #     temp_list = cau.read_item_list(cau.info_dict["food"][0])
-    #     if not food_list:
-    #         await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย ลองเพิ่มก่อนสิ!")
-    #     else:
-    #         food = random.choice(food_list)
-    #         await ctx.send(f"สุ่มได้เมนู: **{food}** 🍽️")
+    async def random_item_from_list(self, ctx, type):
+        temp_list = cau.read_item_list(cau.info_dict[type][0])
+        if not temp_list:
+            await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย ลองเพิ่มก่อนสิ!")
+        else:
+            temp = random.choice(temp_list)
+            await ctx.send(f"สุ่มได้{cau.info_dict[type][2][0]}: **{temp}** {cau.info_dict[type][2][1]}")
 
     @commands.command(name="randfood", help="random food from list")
     async def random_food_from_list(self, ctx):
-        food_list = cau.read_item_list(cau.info_dict["food"][0])
-        if not food_list:
-            await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย ลองเพิ่มก่อนสิ!")
-        else:
-            food = random.choice(food_list)
-            await ctx.send(f"สุ่มได้เมนู: **{food}** 🍽️")
+        await self.random_item_from_list(ctx, "food")
+
+    @commands.command(name="randrestaurant", help="random restaurant from list")
+    async def random_restaurant_from_list(self, ctx):
+        await self.random_item_from_list(ctx, "restaurant")
+            
 
 
 async def setup(bot):

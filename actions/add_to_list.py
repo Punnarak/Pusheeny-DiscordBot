@@ -17,9 +17,10 @@ class AddAction(commands.Cog):
     pass
     temp = ctx.message.content
     temp = temp.split(' ')
-    new_temp = ''
-    for i in range(1, len(temp)):
-      new_temp = new_temp + ' ' + temp[i]
+    new_temp = temp[1]
+    if len(temp) > 2:
+      for i in range(2, len(temp)):
+        new_temp = new_temp + ' ' + temp[i]
     temp = new_temp
     if temp:
       temp_list = cau.read_item_list(cau.info_dict[type][0])
@@ -40,6 +41,12 @@ class AddAction(commands.Cog):
       help="add food in food list for randomization\nformat: !addfood <food>")
   async def add_food(self, ctx):
     await self.add_item_to_list(ctx, "food")
+    
+  @commands.command(
+    name="addrestaurant",
+    help="add restaurant in restaurant list for randomization\nformat: !addrestaurant <restaurant>")
+  async def add_restaurant(self, ctx):
+    await self.add_item_to_list(ctx, "restaurant")
 
   @commands.command(
       name="addmovie",

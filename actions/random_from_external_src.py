@@ -59,7 +59,7 @@ class RandomFromExternalSrc(commands.Cog):
         embed = discord.Embed(
             title=f"ถามว่า: {question}",
             description=f"🎲 คำตอบ: **{answer}**",
-            color=0xFFD700
+            color=0x85edda
         )
         embed.set_image(url=image_url)
         await ctx.send(embed=embed)

@@ -28,7 +28,15 @@ class GetListAction(commands.Cog):
         if not food_list:
             await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย")
         else:
-            await self.output_list(food_list, ctx, "movie")
+            await self.output_list(food_list, ctx, "food")
+
+    @commands.command(name="listrestaurant", help="show restaurant list")
+    async def get_restaurant_from_list(self, ctx):
+        restaurant_list = cau.read_item_list(cau.info_dict["restaurant"][0])
+        if not restaurant_list:
+            await ctx.send("ยังไม่มีร้านอาหารในรายการเลย")
+        else:
+            await self.output_list(restaurant_list, ctx, "restaurant")
 
     @commands.command(name="listmovie", help="show movie list")
     async def get_movie_from_list(self, ctx):
