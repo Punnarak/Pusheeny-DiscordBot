@@ -50,7 +50,7 @@ def create_voice_xp_task(bot):
                     if user_id not in data:
                         data[user_id] = {"xp": 0, "level": 0}
 
-                    data[user_id]["xp"] = round(data[user_id]["xp"] + 0.1)
+                    data[user_id]["xp"] = round(data[user_id]["xp"] + 0.1,1)
 
                     new_level = calculate_level(data[user_id]["xp"])
                     if new_level > data[user_id]["level"]:

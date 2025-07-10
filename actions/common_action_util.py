@@ -1,5 +1,11 @@
 import os
 
+info_dict = {
+  #  'key' : ['file', 'title', [strings for use in messages]]
+    'food' : ["food_list.txt", "📋 รายการอาหาร", ["เมนู", "🍽️"]],
+    'movie' : ["movie_list.txt", "🍿 รายการหนัง", ["เรื่อง", "📽️"]]
+}
+
 def read_item_list(listFile):
   if not os.path.exists(listFile):
     return []

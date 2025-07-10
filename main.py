@@ -3,16 +3,10 @@ from discord.ext import commands
 import random
 from keep_alive import keep_alive
 import os
-import actions.random_from_list as rfl
-import actions.add_to_list as atl
-import actions.get_from_list as gfl
-import actions.delete_from_list as dfl
 import requests
-from levels.level_system import get_leaderboard
-from typing import Optional
 from discord import Embed
-# 👇 นำเข้าโมดูลจากโฟลเดอร์ levels
-from levels.level_system import (add_xp, show_level, create_voice_xp_task)
+from levels.level_system import (add_xp, create_voice_xp_task
+                                 )  # นำเข้าโมดูลจากโฟลเดอร์ levels
 
 TOKEN = os.environ['DISCORD_TOKEN']
 
@@ -24,13 +18,26 @@ intents.members = True
 intents.voice_states = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-
 voice_xp_task = create_voice_xp_task(bot)
 
 
 @bot.event
 async def on_ready():
+    await bot.load_extension("actions.random_from_list")
+    await bot.load_extension("actions.get_from_list")
+    await bot.load_extension("actions.add_to_list")
+    await bot.load_extension("actions.delete_from_list")
+    await bot.load_extension("actions.chat")
+    await bot.load_extension("levels.level_command")
+    await bot.load_extension("pokemon.random_pokemon")
+    await bot.load_extension("pokemon.catch_pokemon")
+    await bot.load_extension("pokemon.my_pokemon")
+    await bot.load_extension("pokemon.release_pokemon")
+
     print(f"✅ Bot is ready: {bot.user}")
+    print("📋 Registered commands:")
+    for command in bot.commands:
+        print(f"- {command.name}")
     voice_xp_task.start()
 
 
@@ -60,42 +67,6 @@ async def on_message(message):
         embedVar.set_footer(text="✨Get Ticket at the bottom of the post")
         await add_xp(message.author, amount=4, context_channel=message.channel)
         await message.channel.send(embed=embedVar)
-
-    # คำสั่งสุ่ม
-    elif message.content.startswith("!rand"):
-        await add_xp(message.author, amount=4, context_channel=message.channel)
-        await message.channel.send(rfl.rand_action(message.content))
-    # คำสั่งเพิ่ม
-    elif message.content.startswith("!add"):
-        await add_xp(message.author, amount=4, context_channel=message.channel)
-        await message.channel.send(atl.add_action(message.content))
-    # แสดงรายการ
-    elif message.content.startswith("!list"):
-        await add_xp(message.author, amount=4, context_channel=message.channel)
-        list = gfl.get_list_action(message.content)
-        if list:
-            for item in list:
-                await message.channel.send(item)
-    # ลบ ตามชื่อ หรือ ตามเลขลำดับ
-    elif message.content.startswith("!del"):
-        await add_xp(message.author,
-                     amount=4,
-                     context_channel=message.channel)
-        await message.channel.send(dfl.delete_action(message.content))
-    # Random meme from Reddit
-    elif message.content.startswith("!meme"):
-        await add_xp(message.author, amount=4, context_channel=message.channel)
-        response = requests.get("https://meme-api.com/gimme")
-        data = response.json()
-
-        embed = discord.Embed(title=data["title"],
-                              url=data["postLink"],
-                              color=0xFFC0CB)
-        embed.set_image(url=data["url"])
-        embed.set_footer(
-            text=
-            f"👍 {data['ups']} | r/{data['subreddit']} | by {data['author']}")
-        await message.channel.send(embed=embed)
     elif message.content.startswith("!eat r") or message.content.startswith(
             "/eat r"):
         restaurant = [
@@ -132,90 +103,72 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-@bot.command()
-async def command(message):
-    embedc = discord.Embed(
-        title='====== Command ======',
-        url='https://www.instagram.com/pun_hasinanan/?utm_medium=copy_link',
-        description="This is Pusheeny Command",
-        color=0xFFC0CB
-    ).set_image(
+# @bot.command(name='command')
+# async def command(message):
+#     embedc = discord.Embed(
+#         title='====== Command ======',
+#         url='https://www.instagram.com/pun_hasinanan/?utm_medium=copy_link',
+#         description="This is Pusheeny Command",
+#         color=0xFFC0CB
+#     ).set_image(
+#         url=
+#         'https://i.pinimg.com/originals/35/25/46/352546eccb66bb11200f99b9aa1268a8.gif'
+#     )
+#     embedc.add_field(name="!hello", value="hi", inline=False)
+#     embedc.add_field(name="!level", value="show your level", inline=False)
+#     embedc.add_field(name="!leaderboard",
+#                      value="show leaderboard of top 5",
+#                      inline=False)
+#     embedc.add_field(name="!meme",
+#                      value="random meme from Reddit",
+#                      inline=False)
+#     embedc.add_field(name="!showtime", value="check movie time", inline=False)
+#     embedc.add_field(
+#         name="!addfood",
+#         value=
+#         "add food in food list for randomization\nformat: !addfood <food>",
+#         inline=False)
+#     embedc.add_field(
+#         name="!delfood",
+#         value="delete food from food list\nformat: !delfood <food>",
+#         inline=False)
+#     embedc.add_field(name="!randfood", value="random food", inline=False)
+#     embedc.add_field(name="!eat r", value="random restaurant", inline=False)
+#     embedc.add_field(name="!do", value="random event", inline=False)
+#     embedc.add_field(name="!catchpokemon",
+#                      value="random pokemon",
+#                      inline=False)
+#     embedc.add_field(name="!command", value="show all command", inline=False)
+#     # embedVar.set_footer(text="✨Get Ticket at the bottom of the post")
+#     await add_xp(message.author, amount=4, context_channel=message.channel)
+#     await message.channel.send(embed=embedc)
+@bot.command(name="command", help="show all command")
+async def command(ctx):
+    embedc = discord.Embed(title="✨ คำสั่งทั้งหมดของบอท ✨",
+                           description="คำสั่งที่คุณสามารถใช้ได้ในบอทนี้",
+                           color=0xFFC0CB)
+
+    for cmd in bot.commands:
+        if cmd.hidden:
+            continue
+        name = f"!{cmd.name}"
+        desc = cmd.help or "ไม่มีคำอธิบาย"
+        embedc.add_field(name=name, value=desc, inline=False)
+
+    embedc.set_footer(text="ใช้ !<ชื่อคำสั่ง> เพื่อเรียกใช้งาน")
+    embedc.set_image(
         url=
-        'https://i.pinimg.com/originals/35/25/46/352546eccb66bb11200f99b9aa1268a8.gif'
+        "https://i.pinimg.com/originals/35/25/46/352546eccb66bb11200f99b9aa1268a8.gif"
     )
-    embedc.add_field(name="!hello", value="hi", inline=False)
-    embedc.add_field(name="!level", value="show your level", inline=False)
-    embedc.add_field(name="!leaderboard",
-                     value="show leaderboard of top 5",
-                     inline=False)
-    embedc.add_field(name="!meme",
-                     value="random meme from Reddit",
-                     inline=False)
-    embedc.add_field(name="!showtime", value="check movie time", inline=False)
-    embedc.add_field(
-        name="!addfood",
-        value="add food in food list for randomization\nformat: !addfood <food>",
-        inline=False)
-    embedc.add_field(name="!delfood",
-                     value="delete food from food list\nformat: !delfood <food>",
-                     inline=False)
-    embedc.add_field(name="!randfood", value="random food", inline=False)
-    embedc.add_field(name="!eat r", value="random restaurant", inline=False)
-    embedc.add_field(name="!do", value="random event", inline=False)
-    embedc.add_field(name="!command", value="show all command", inline=False)
-    # embedVar.set_footer(text="✨Get Ticket at the bottom of the post")
-    await add_xp(message.author, amount=4, context_channel=message.channel)
-    await message.channel.send(embed=embedc)
+
+    await ctx.send(embed=embedc)
 
 
 @bot.listen("on_command")
 async def on_command(ctx):
     if ctx.author.bot:
         return
-    await add_xp(ctx.author, amount=-1, context_channel=ctx.channel)
     await add_xp(ctx.author, amount=5, context_channel=ctx.channel)
-
-
-@bot.command()
-async def level(ctx, member: Optional[discord.Member] = None):
-    if member is None:
-        member = ctx.author  # ตั้งค่า default เป็นผู้ใช้ที่รันคำสั่ง
-    await show_level(ctx, member)
-
-
-@bot.command()
-async def leaderboard(ctx):
-    top_users = get_leaderboard()
-    if not top_users:
-        await ctx.send("📉 ยังไม่มีข้อมูลเลเวลในระบบเลยค่ะ!")
-        return
-
-    medals = ["🥇", "🥈", "🥉"]
-
-    for index, (user_id, stats) in enumerate(top_users, start=1):
-        try:
-            user = await bot.fetch_user(int(user_id))
-            name = f"{user.mention}"  # จะ tag user
-            avatar_url = user.avatar.url if user.avatar else user.default_avatar.url
-        except:
-            name = f"User ID {user_id}"
-            avatar_url = None
-
-        medal = medals[index - 1] if index <= 3 else f"#{index}"
-        level = stats["level"]
-        xp = stats["xp"]
-
-        embed = Embed(
-            title=f"{medal} อันดับที่ {index}",
-            description=f"👤 {name}\n⭐ Level: `{level}` | ✨ XP: `{xp}`",
-            color=discord.Color.gold())
-
-        if avatar_url:
-            embed.set_thumbnail(url=avatar_url)
-
-        await ctx.send(embed=embed)
-
-    await ctx.send("📊 อัปเดตทุกครั้งที่มีคนใช้บอทหรือส่งข้อความ")
 
 
 keep_alive()

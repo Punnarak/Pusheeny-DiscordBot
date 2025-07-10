@@ -1,32 +1,43 @@
 from . import common_action_util as cau
+from discord.ext import commands
 
-FOOD_FILE = "food_list.txt"
 
-def get_list_action(Msg):
-    if Msg == "!listfood":
-        return get_food_from_list()
-    elif Msg == "!randmovie":
-        return random_movie_from_list()
+# แสดงรายการ
+class GetListAction(commands.Cog):
 
-def get_food_from_list():
-    food_list = cau.read_item_list(FOOD_FILE)
-    if not food_list:
-        return "ยังไม่มีเมนูอาหารในรายการเลย"
-    else:
-        msg = "\n".join(f"{i+1}. {item}" for i, item in enumerate(food_list))
+    def __init__(self, bot):
+        self.bot = bot
+
+    async def output_list(self, input_list, ctx, type):
+        msg = "\n".join(f"{i+1}. {item}" for i, item in enumerate(input_list))
         # ถ้าข้อความยาวเกินไป อาจต้องแบ่งส่งหลายข้อความ
         if len(msg) > 1900:
-            temp_return_list = list()
+            temp_output_list = list()
             for i in range(0, len(msg), 1900):
-                temp_return_list.append(f"```{msg[i:i+1900]}```")
-            return temp_return_list
+                temp_output_list.append(f"```{msg[i:i+1900]}```")
+
+            if temp_output_list:
+                for item in temp_output_list:
+                    await ctx.send(temp_output_list)
         else:
-            return [f"📋 รายการอาหาร:\n```{msg}```"]
+            await ctx.send("{}:\n```{}```".format(cau.info_dict[type][1], msg))
 
-def random_movie_from_list():
-    return "สุ่มได้หนัง: **The Matrix** 🍿"
+    @commands.command(name="listfood", help="show food list")
+    async def get_food_from_list(self, ctx):
+        food_list = cau.read_item_list(cau.info_dict["food"][0])
+        if not food_list:
+            await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย")
+        else:
+            await self.output_list(food_list, ctx, "movie")
+
+    @commands.command(name="listmovie", help="show movie list")
+    async def get_movie_from_list(self, ctx):
+        movie_list = cau.read_item_list(cau.info_dict["movie"][0])
+        if not movie_list:
+            await ctx.send("ยังไม่มีรายการหนังในรายการเลย 📽️")
+        else:
+            await self.output_list(movie_list, ctx, "movie")
 
 
-
-    
-        
+async def setup(bot):
+    await bot.add_cog(GetListAction(bot))

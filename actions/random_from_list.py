@@ -1,21 +1,30 @@
 from . import common_action_util as cau
 import random
+from discord.ext import commands
 
-FOOD_FILE = "food_list.txt"
+# คำสั่งสุ่ม
+class RandAction(commands.Cog):
 
-def rand_action(Msg):
-    if Msg == "!randfood":
-        return random_food_from_list()
-    elif Msg == "!randmovie":
-        return random_movie_from_list()
+    def __init__(self, bot):
+        self.bot = bot
 
-def random_food_from_list():
-    food_list = cau.read_item_list(FOOD_FILE)
-    if not food_list:
-        return "ยังไม่มีเมนูอาหารในรายการเลย ลองเพิ่มก่อนสิ!"
-    else:
-        food = random.choice(food_list)
-        return f"สุ่มได้เมนู: **{food}** 🍽️"
+    # async def random_item_from_list(self, ctx, type):
+    #     temp_list = cau.read_item_list(cau.info_dict["food"][0])
+    #     if not food_list:
+    #         await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย ลองเพิ่มก่อนสิ!")
+    #     else:
+    #         food = random.choice(food_list)
+    #         await ctx.send(f"สุ่มได้เมนู: **{food}** 🍽️")
 
-def random_movie_from_list():
-    return "สุ่มได้หนัง: **The Matrix** 🍿"
+    @commands.command(name="randfood", help="random food from list")
+    async def random_food_from_list(self, ctx):
+        food_list = cau.read_item_list(cau.info_dict["food"][0])
+        if not food_list:
+            await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย ลองเพิ่มก่อนสิ!")
+        else:
+            food = random.choice(food_list)
+            await ctx.send(f"สุ่มได้เมนู: **{food}** 🍽️")
+
+
+async def setup(bot):
+    await bot.add_cog(RandAction(bot))

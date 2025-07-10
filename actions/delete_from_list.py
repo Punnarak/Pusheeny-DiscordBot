@@ -1,35 +1,49 @@
 from . import common_action_util as cau
+from discord.ext import commands
 
-FOOD_FILE = "food_list.txt"
+# ลบ ตามชื่อ หรือ ตามเลขลำดับ
+class DeleteAction(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
+    async def delete_item_from_list(self, ctx, type):
+        temp = ctx.message.content
+        temp = temp.split(' ')
+        new_temp = temp[1]
+        if len(temp) > 2:
+            for i in range(2, len(temp)):
+                new_temp = new_temp + ' ' + temp[i]
+        temp = new_temp
+        temp_list = cau.read_item_list(cau.info_dict[type][0])
+        if not temp_list:
+            await ctx.send("ยังไม่มี{cau.info_dict[type][2][0]}ในรายการเลย")
 
-def delete_food(food):
-    arg = food[len("!delfood "):].strip()
-    food_list = cau.read_item_list(FOOD_FILE)
-    if not food_list:
-        return "ยังไม่มีเมนูอาหารในรายการเลย"
-
-    # ลบตามเลขลำดับ
-    if arg.isdigit():
-        index = int(arg) - 1
-        if 0 <= index < len(food_list):
-            removed = food_list.pop(index)
-            cau.save_item_list(FOOD_FILE, food_list)  # ← ใช้ฟังก์ชันใหม่
-            return f"ลบเมนูลำดับ {index+1}: **{removed}** เรียบร้อยแล้ว"
+        # ลบตามเลขลำดับ
+        if temp.isdigit():
+            index = int(temp) - 1
+            if 0 <= index < len(temp_list):
+                removed = temp_list.pop(index)
+                cau.save_item_list(cau.info_dict[type][0], temp_list)  # ← ใช้ฟังก์ชันใหม่
+                await ctx.send(f"ลบ{cau.info_dict[type][2][0]}ลำดับ {index+1}: **{removed}** เรียบร้อยแล้ว")
+            else:
+                await ctx.send("เลขลำดับไม่ถูกต้อง")
         else:
-            return "เลขลำดับไม่ถูกต้อง"
-    else:
-        # ลบตามชื่อเมนู
-        if arg in food_list:
-            food_list.remove(arg)
-            cau.save_item_list(FOOD_FILE, food_list)  # ← ใช้ฟังก์ชันใหม่
-            return f"ลบเมนู: **{arg}** เรียบร้อยแล้ว"
-        else:
-            return f"ไม่พบเมนูชื่อ `{arg}`"
+            # ลบตามชื่อ
+            await ctx.send(temp)
+            if temp in temp_list:
+                temp_list.remove(temp)
+                cau.save_item_list(cau.info_dict[type][0], temp_list)  # ← ใช้ฟังก์ชันใหม่
+                await ctx.send(f"ลบ{cau.info_dict[type][2][0]}: **{temp}** เรียบร้อยแล้ว")
+            else:
+                await ctx.send(f"ไม่พบ{cau.info_dict[type][2][0]}ชื่อ \"{temp}\"")
+        
+    @commands.command(name="delfood",help="delete food from food list\nformat: !delfood <food>")
+    async def delete_food(self, ctx):
+        await self.delete_item_from_list(ctx, "food")
 
+    @commands.command(name="delmovie",help="delete movie from movie list\nformat: !delmovie <movie>")
+    async def delete_movie(self, ctx):
+        await self.delete_item_from_list(ctx, "movie")
 
-def delete_action(command):
-    if command.startswith("!delfood "):
-        return delete_food(command)
-    else:
-        return "ไม่รู้จักคำสั่งนี้"
+async def setup(bot):
+    await bot.add_cog(DeleteAction(bot))

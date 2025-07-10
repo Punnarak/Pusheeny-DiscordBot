@@ -1,25 +1,53 @@
 from . import common_action_util as cau
+from discord.ext import commands
 
-FOOD_FILE = "food_list.txt"
 
-def add_item(file, item):
+def write_to_file(file, item):
   with open(file, "a", encoding="utf-8") as f:
     f.write(item.strip() + "\n")
 
-def add_food(food):
-  food = food[len("!addfood "):].strip()
-  if food:
-    food_list = cau.read_item_list(FOOD_FILE)
-    if food in food_list:
-      return f"มีเมนู **{food}** อยู่ในรายการแล้ว!"
-    else:
-      add_item(FOOD_FILE, food)
-      return f"เพิ่มเมนู: **{food}** เรียบร้อยแล้ว!"
-  else:
-    return "โปรดระบุชื่ออาหาร เช่น `!addfood ข้าวผัดกุ้ง`"
 
-def add_action(command):
-  if command.startswith("!addfood"):
-    return add_food(command)
-  else:
-    return "ไม่รู้จักคำสั่งนี้"
+# คำสั่งเพิ่มใส่รายการ
+class AddAction(commands.Cog):
+
+  def __init__(self, bot):
+    self.bot = bot
+
+  async def add_item_to_list(self, ctx, type):
+    pass
+    temp = ctx.message.content
+    temp = temp.split(' ')
+    new_temp = ''
+    for i in range(1, len(temp)):
+      new_temp = new_temp + ' ' + temp[i]
+    temp = new_temp
+    if temp:
+      temp_list = cau.read_item_list(cau.info_dict[type][0])
+      if temp in temp_list:
+        await ctx.send(
+            f"มี{cau.info_dict[type][2][0]} **{temp}** อยู่ในรายการแล้ว!")
+      else:
+        write_to_file(cau.info_dict[type][0], temp)
+        await ctx.send(
+            f"เพิ่ม{cau.info_dict[type][2][0]}: **{temp}** เรียบร้อยแล้ว!")
+    else:
+      await ctx.send(
+          f"โปรดระบุชื่อ{cau.info_dict[type][2][0]} เช่น \"!add{type} Ratatouille\""
+      )
+
+  @commands.command(
+      name="addfood",
+      help="add food in food list for randomization\nformat: !addfood <food>")
+  async def add_food(self, ctx):
+    await self.add_item_to_list(ctx, "food")
+
+  @commands.command(
+      name="addmovie",
+      help=
+      "add movie in movie list for randomization\nformat: !addmovie <movie>")
+  async def add_movie(self, ctx):
+    await self.add_item_to_list(ctx, "movie")
+
+
+async def setup(bot):
+  await bot.add_cog(AddAction(bot))
