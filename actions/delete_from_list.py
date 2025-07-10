@@ -29,7 +29,6 @@ class DeleteAction(commands.Cog):
                 await ctx.send("เลขลำดับไม่ถูกต้อง")
         else:
             # ลบตามชื่อ
-            await ctx.send(temp)
             if temp in temp_list:
                 temp_list.remove(temp)
                 cau.save_item_list(cau.info_dict[type][0], temp_list)  # ← ใช้ฟังก์ชันใหม่
