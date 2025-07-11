@@ -1,29 +1,6 @@
 import discord
 from discord.ext import commands
-import json
-import os
-
-POKEMON_STORAGE = "pokemon/pokemon_storage.json"
-
-
-def load_pokemon_data():
-    if os.path.exists(POKEMON_STORAGE):
-        with open(POKEMON_STORAGE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-
-def get_rarity_emoji(rarity):
-    emojis = {
-        "ธรรมดา (Common)": "⚪",
-        "Uncommon": "🟢",
-        "หายาก (Rare)": "🔵",
-        "Epic": "🟣",
-        "ตำนาน (Legendary)": "🟡",
-        "Mythical": "🌟",
-        "Ultra Beast": "🔥"
-    }
-    return emojis.get(rarity, "❓")
+from . import common_pokemon_util as cpu
 
 
 def get_sprite_url(pokemon):
@@ -37,7 +14,7 @@ class MyPokemon(commands.Cog):
 
     @commands.command(name="mypokemon", help="show your pokemon")
     async def mypokemon(self, ctx):
-        data = load_pokemon_data()
+        data = cpu.load_pokemon_data()
         user_pokemon = data.get(str(ctx.author.id), [])
         if not user_pokemon:
             await ctx.send("คุณยังไม่มีโปเกมอนในกระเป๋าเลย 😢")
@@ -47,9 +24,10 @@ class MyPokemon(commands.Cog):
 
         for i, p in enumerate(user_pokemon, start=1):
             shiny = "✨" if p.get("shiny") else ""
-            emoji = get_rarity_emoji(p.get("rarity", ""))
+            emoji = cpu.get_rarity_emoji(p['is_legendary'], p['is_mythical'])
             name_line = f"{p['name']} {shiny}"
-            detail_line = f"ประเภท: {p['types']}\nความหายาก: {emoji} {p.get('rarity', '-')}\nID: #{p['id']}"
+            rarity = p['leg_or_myth']
+            detail_line = f"ประเภท: {p['types']}\nความหายาก: {emoji} {rarity}\nID: #{p['id']}"
 
             embed.add_field(name=f"{i}. {name_line}",
                             value=detail_line,

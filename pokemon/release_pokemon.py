@@ -1,21 +1,6 @@
 import discord
 from discord.ext import commands
-import json
-import os
-
-POKEMON_STORAGE = "pokemon/pokemon_storage.json"
-
-
-def load_pokemon_data():
-    if os.path.exists(POKEMON_STORAGE):
-        with open(POKEMON_STORAGE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-
-def save_pokemon_data(data):
-    with open(POKEMON_STORAGE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+from . import common_pokemon_util as cpu
 
 
 def get_sprite_url(pokemon):
@@ -26,19 +11,6 @@ def get_sprite_url(pokemon):
     name = pokemon.get("english", pokemon.get("name",
                                               "")).lower().replace(" ", "-")
     return f"https://projectpokemon.org/images/normal-sprite/{name}.gif"
-
-
-def get_rarity_emoji(rarity):
-    emojis = {
-        "ธรรมดา (Common)": "⚪",
-        "Uncommon": "🟢",
-        "หายาก (Rare)": "🔵",
-        "Epic": "🟣",
-        "ตำนาน (Legendary)": "🟡",
-        "Mythical": "🌟",
-        "Ultra Beast": "🔥"
-    }
-    return emojis.get(rarity, "❓")
 
 
 class ReleaseView(discord.ui.View):
@@ -55,11 +27,11 @@ class ReleaseView(discord.ui.View):
     @discord.ui.button(label="ยืนยัน", style=discord.ButtonStyle.danger)
     async def confirm(self, interaction: discord.Interaction,
                       button: discord.ui.Button):
-        data = load_pokemon_data()
+        data = cpu.load_pokemon_data()
         user_id = str(self.ctx.author.id)
         if user_id in data and 0 <= self.index < len(data[user_id]):
             released = data[user_id].pop(self.index)
-            save_pokemon_data(data)
+            cpu.save_pokemon_data(data)
             await interaction.response.edit_message(
                 content=f"🕊️ ปล่อย `{released['name']}` ออกไปเรียบร้อยแล้ว!",
                 embed=None,
@@ -82,7 +54,7 @@ class ReleasePokemon(commands.Cog):
 
     @commands.command(name="releasepokemon",help="release pokemon from your pocket\nformat: !releasepokemon <index>")
     async def release_pokemon(self, ctx, index: int = None):
-        data = load_pokemon_data()
+        data = cpu.load_pokemon_data()
         user_id = str(ctx.author.id)
         user_pokemon = data.get(user_id, [])
 
@@ -97,9 +69,8 @@ class ReleasePokemon(commands.Cog):
 
             for i, p in enumerate(user_pokemon, start=1):
                 shiny = "✨" if p.get("shiny") else ""
-                emoji = get_rarity_emoji(p.get("rarity", ""))
                 name_line = f"{p['name']} {shiny}"
-                detail_line = f"ความหายาก: {emoji} {p.get('rarity', '-')}\nID: #{p['id']}"
+                detail_line = f"ID: #{p['id']}"
 
                 embed.add_field(name=f"{i}. {name_line}",
                                 value=detail_line,
