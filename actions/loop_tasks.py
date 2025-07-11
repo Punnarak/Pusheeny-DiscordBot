@@ -6,7 +6,7 @@ import os
 from requests.structures import CaseInsensitiveDict
 
 TOKEN = os.environ['GOLD_API_TOKEN']
-CHANNEL_ID = os.environ['CHANNEL_ID']
+CHANNEL_ID = int(os.environ['CHANNEL_ID'])
 
 
 class GoldPriceNotifier(commands.Cog):
