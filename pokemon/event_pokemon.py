@@ -79,7 +79,7 @@ class EventPokemon(commands.Cog):
     async def spawn_loop(self):
         # สุ่ม 50% ว่าจะปล่อยหรือไม่ในรอบนั้น
         rand = random.random()
-        print(f"Random value: {rand}")
+        # print(f"Random value: {rand}")
         if rand < 0.5:
             await self.spawn_pokemon_event()
 
