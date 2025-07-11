@@ -33,27 +33,14 @@ def add_pokemon_to_user(user_id, pokemon):
     return True
 
 
-def get_rarity(pokemon_id):
-    if pokemon_id > 800:
-        return "ตำนาน (Legendary)"
-    elif pokemon_id > 500:
-        return "หายาก (Rare)"
-    else:
-        return "ธรรมดา (Common)"
-
-
 def is_shiny():
     return random.randint(1, 4096) == 1
 
 
 # กำหนดโอกาสจับได้ตาม rarity
-def catch_chance(rarity):
-    chances = {
-        "ธรรมดา (Common)": 0.8,
-        "หายาก (Rare)": 0.5,
-        "ตำนาน (Legendary)": 0.2
-    }
-    return chances.get(rarity, 0.5)  # default 50%
+def catch_chance(cap_rate):
+    chances = ((cap_rate - 255) / 255) + 1
+    return chances
 
 
 class CatchView(discord.ui.View):
@@ -66,23 +53,22 @@ class CatchView(discord.ui.View):
         self.caught = False
 
     @discord.ui.button(label="จับ", style=discord.ButtonStyle.green)
-    async def catch_button(self, interaction: discord.Interaction,
-                           button: discord.ui.Button):
+    async def catch_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.ctx.author:
-            await interaction.response.send_message("นี่ไม่ใช่ปุ่มของคุณ!",
-                                                    ephemeral=True)
+            await interaction.response.send_message("นี่ไม่ใช่ปุ่มของคุณ!", ephemeral=True)
             return
 
-        chance = catch_chance(self.pokemon["rarity"])
+        chance = catch_chance(self.pokemon["capture_rate"])
         success = random.random() < chance
         shiny_text = "✨ Shiny ✨" if self.pokemon["shiny"] else ""
 
         if success:
             added = add_pokemon_to_user(interaction.user.id, self.pokemon)
             if added:
+                
                 await interaction.response.edit_message(
                     content=
-                    f"🎉 {interaction.user.mention} จับ {self.pokemon['name']} {shiny_text} ได้แล้ว! [{self.pokemon['rarity']}] 🛍️",
+                    f"🎉 {interaction.user.mention} จับ {self.pokemon['name']} {shiny_text} ได้แล้ว! {self.pokemon['is_legendary']}{self.pokemon['is_mythical']} 🛍️",
                     view=None)
             else:
                 await interaction.response.edit_message(
@@ -111,13 +97,13 @@ class CatchView(discord.ui.View):
             view=None)
         self.stop()
 
+
 class CatchPokemon(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    async def fetch_pokemon(self, identifier):
-        url = f"https://pokeapi.co/api/v2/pokemon/{identifier.lower()}"
+    async def fetch_pokemon(self, identifier, url):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 if resp.status == 200:
@@ -125,16 +111,17 @@ class CatchPokemon(commands.Cog):
                 else:
                     return None
 
-    @commands.command(name="catchpokemon", help="attempt to catch a random pokemon")
+    @commands.command(name="catchpokemon",
+                      help="attempt to catch a random pokemon")
     async def catchpokemon(self, ctx):
         pokemon_id = random.randint(1, 1025)
-        data = await self.fetch_pokemon(str(pokemon_id))
+        url = f"https://pokeapi.co/api/v2/pokemon/{str(pokemon_id)}"
+        data = await self.fetch_pokemon(str(pokemon_id), url)
         if not data:
             await ctx.send("ไม่พบโปเกมอนนี้!")
             return
 
         shiny = is_shiny()
-        rarity = get_rarity(pokemon_id)
         sprite = data["sprites"]["front_shiny"] if shiny else data["sprites"][
             "front_default"]
 
@@ -143,13 +130,33 @@ class CatchPokemon(commands.Cog):
             "id": data["id"],
             "types": ", ".join(t["type"]["name"] for t in data["types"]),
             "sprite": sprite,
-            "rarity": rarity,
             "shiny": shiny
         }
+        url2 = f"https://pokeapi.co/api/v2/pokemon-species/{str(pokemon_id)}"
+        data2 = await self.fetch_pokemon(str(pokemon_id), url2)
+        if not data2:
+            await ctx.send("ไม่พบโปเกมอนนี้!")
+            return
+        pokemon["capture_rate"] = data2["capture_rate"]
+        if data2["is_legendary"]:
+            pokemon["is_legendary"] = "โปเกม่อนในตำนาน"
+        else:
+            pokemon["is_legendary"] = ""
+        if data2["is_mythical"]:
+            pokemon["is_mythical"] = "โปเกม่อนเทพนิยาย"
+        else:
+            pokemon["is_mythical"] = ""
+        if data2["is_legendary"] or data2["is_mythical"]:
+            leg = pokemon["is_legendary"]
+            myth = pokemon["is_mythical"]
+            leg_or_myth = f"{leg}{myth}"
+        else:
+            leg_or_myth = ""
 
-        shiny_text = "✨ Shiny ✨" if shiny else ""
+        shiny_text = "✨ Shiny ✨ " if shiny else ""
+        
         embed = discord.Embed(
-            title=f"พบโปเกมอน: {pokemon['name']} {shiny_text} [{rarity}]",
+            title=f"พบโปเกมอน: {pokemon['name']} {shiny_text}{leg_or_myth}",
             description=f"ประเภท: {pokemon['types']}",
             color=discord.Color.random())
         embed.set_thumbnail(url=sprite)
