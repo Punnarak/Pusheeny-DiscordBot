@@ -4,19 +4,6 @@ import random
 from . import common_pokemon_util as cpu
 
 
-def add_pokemon_to_user(user_id, pokemon):
-    data = cpu.load_pokemon_data()
-    user_pokemon = data.get(str(user_id), [])
-    # ป้องกันซ้ำแบบ shiny + id เท่านั้น
-    if any(p['id'] == pokemon['id'] and p['shiny'] == pokemon['shiny']
-           for p in user_pokemon):
-        return False
-    user_pokemon.append(pokemon)
-    data[str(user_id)] = user_pokemon
-    cpu.save_pokemon_data(data)
-    return True
-
-
 class CatchView(discord.ui.View):
 
     def __init__(self, bot, ctx, pokemon):
@@ -37,7 +24,7 @@ class CatchView(discord.ui.View):
         shiny_text = "✨ Shiny ✨" if self.pokemon["shiny"] else ""
 
         if success:
-            added = add_pokemon_to_user(interaction.user.id, self.pokemon)
+            added = cpu.add_pokemon_to_user(interaction.user.id, self.pokemon)
             if added:
                 await interaction.response.edit_message(
                     content=

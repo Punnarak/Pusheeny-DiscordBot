@@ -4,6 +4,7 @@ import aiohttp
 import random
 
 POKEMON_STORAGE = "pokemon/pokemon_storage.json"
+CHANNEL_ID = int(os.environ['CHANNEL_ID'])
 
 
 def load_pokemon_data():
@@ -15,6 +16,18 @@ def load_pokemon_data():
 def save_pokemon_data(data):
     with open(POKEMON_STORAGE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+def add_pokemon_to_user(user_id, pokemon):
+    data = load_pokemon_data()
+    user_pokemon = data.get(str(user_id), [])
+    # ป้องกันซ้ำแบบ shiny + id เท่านั้น
+    if any(p['id'] == pokemon['id'] and p['shiny'] == pokemon['shiny']
+           for p in user_pokemon):
+        return False
+    user_pokemon.append(pokemon)
+    data[str(user_id)] = user_pokemon
+    save_pokemon_data(data)
+    return True
 
 def is_shiny():
     return random.randint(1, 4096) == 1

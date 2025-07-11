@@ -1,13 +1,7 @@
 import discord
 from discord.ext import commands, tasks
-# import aiohttp
 import random
-import os
 from . import common_pokemon_util as cpu
-
-from .catch_pokemon import add_pokemon_to_user  # เรียกใช้ util จากไฟล์ catch_pokemon
-
-CHANNEL_ID = int(os.environ['CHANNEL_ID'])
 
 
 class EventCatchView(discord.ui.View):
@@ -27,7 +21,7 @@ class EventCatchView(discord.ui.View):
                                                     ephemeral=True)
             return
 
-        added = add_pokemon_to_user(interaction.user.id, self.pokemon)
+        added = cpu.add_pokemon_to_user(interaction.user.id, self.pokemon)
         shiny_text = "✨ Shiny ✨" if self.pokemon['shiny'] else ""
 
         if added:
@@ -52,7 +46,7 @@ class EventPokemon(commands.Cog):
         self.spawn_loop.start()
 
     async def spawn_pokemon_event(self):
-        channel_id = CHANNEL_ID
+        channel_id = cpu.CHANNEL_ID
         channel = self.bot.get_channel(channel_id)
         if not channel:
             print("Channel not found")
