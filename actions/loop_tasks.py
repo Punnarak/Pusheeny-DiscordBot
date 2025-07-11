@@ -31,7 +31,6 @@ class GoldPriceNotifier(commands.Cog):
         channel = self.bot.get_channel(channel_id)
         if not channel:
             return
-
         try:
             url = f"https://api.metals.dev/v1/latest?api_key={TOKEN}&currency=USD&unit=toz&base=USD&symbols=XAU"
             headers = CaseInsensitiveDict()
@@ -45,7 +44,8 @@ class GoldPriceNotifier(commands.Cog):
 
                 desc = f"**1 XAU = {gold_price:,.2f} USD**"
                 if thb_rate:
-                    desc += f"\n💵 **1 USD = {thb_rate:,.2f} บาท**"
+                    thb = 1/thb_rate
+                    desc += f"\n💵 **1 USD = {thb:,.2f} บาท**"
 
                 embed = discord.Embed(
                     title="📈 ราคาทองคำ XAU/USD และค่าเงินบาท",
