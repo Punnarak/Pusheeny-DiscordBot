@@ -12,31 +12,37 @@ class EventCatchView(discord.ui.View):
         self.pokemon = pokemon
         self.caught = False
         self.on_catch_callback = on_catch_callback
+        self.attempted_users = list()
 
     @discord.ui.button(label="จับก่อนใคร!", style=discord.ButtonStyle.green)
     async def catch_first(self, interaction: discord.Interaction,
                           button: discord.ui.Button):
         if self.caught:
-            await interaction.response.send_message("⛔ มีคนจับโปเกมอนไปแล้ว!",
-                                                    ephemeral=True)
+            await interaction.response.send_message("⛔ มีคนจับโปเกมอนไปแล้ว!", ephemeral=True)
             return
-
-        added = cpu.add_pokemon_to_user(interaction.user.id, self.pokemon)
-        shiny_text = "✨ Shiny ✨" if self.pokemon['shiny'] else ""
-
-        if added:
-            self.caught = True
-            
-            await interaction.response.edit_message(
-                content=
-                f"🎉 {interaction.user.mention} จับ {self.pokemon['name']} {shiny_text} ได้ก่อนใคร! {self.pokemon['leg_or_myth']} 🏆",
-                view=None)
-            await self.on_catch_callback()
+        elif interaction.user.id in self.attempted_users:
+            await interaction.response.send_message("⛔ คุณได้พยายามจับโปเกมอนนี้ไปแล้ว!", ephemeral=True)
+            return
         else:
-            await interaction.response.send_message(
-                "📦 คุณมีโปเกมอนตัวนี้แล้ว!", ephemeral=True)
-
-        self.stop()
+            chance = cpu.catch_chance(self.pokemon["capture_rate"])
+            success = random.random() < chance
+            shiny_text = "✨ Shiny ✨" if self.pokemon['shiny'] else ""
+    
+            if success:
+                added = cpu.add_pokemon_to_user(interaction.user.id, self.pokemon)
+                if added:
+                    self.caught = True
+                    await interaction.response.edit_message(
+                        content=
+                        f"🎉 {interaction.user.mention} จับ {self.pokemon['name']} {shiny_text} ได้ก่อนใคร! {self.pokemon['leg_or_myth']} 🏆",
+                        view=None)
+                    await self.on_catch_callback()
+                    self.stop()
+                else:
+                    await interaction.response.send_message("📦 คุณมีโปเกมอนตัวนี้แล้ว!", ephemeral=True)
+            else:
+                await interaction.response.send_message(f"😢 {interaction.user.mention} จับไม่สำเร็จ...", ephemeral=False)
+                self.attempted_users.append(interaction.user.id)
 
 
 class EventPokemon(commands.Cog):
@@ -73,7 +79,7 @@ class EventPokemon(commands.Cog):
     async def spawn_loop(self):
         # สุ่ม 50% ว่าจะปล่อยหรือไม่ในรอบนั้น
         rand = random.random()
-        # print(f"Random value: {rand}")
+        print(f"Random value: {rand}")
         if rand < 0.5:
             await self.spawn_pokemon_event()
 
