@@ -13,6 +13,24 @@ class EventCatchView(discord.ui.View):
         self.caught = False
         self.on_catch_callback = on_catch_callback
         self.attempted_users = list()
+        self.message = None  # store message reference
+
+    async def on_timeout(self):
+        # Disabled button on timeout
+        # for child in self.children:
+        #     if isinstance(child, discord.ui.Button):
+        #         child.disabled = True
+
+        # if self.message:
+        #     try:
+        #         await self.message.edit(view=self)
+        #     except discord.NotFound:
+        #         pass
+        if self.message:
+            try:
+                await self.message.edit(view=None)
+            except discord.NotFound:
+                pass
 
     @discord.ui.button(label="จับก่อนใคร!", style=discord.ButtonStyle.green)
     async def catch_first(self, interaction: discord.Interaction,
@@ -73,7 +91,8 @@ class EventPokemon(commands.Cog):
             pass
 
         view = EventCatchView(self.bot, pokemon_data, dummy_callback)
-        await channel.send(embed=embed, view=view)
+        message = await channel.send(embed=embed, view=view)
+        view.message = message
 
     @tasks.loop(minutes=1)
     async def spawn_loop(self):
