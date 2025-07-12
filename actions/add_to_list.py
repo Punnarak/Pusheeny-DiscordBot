@@ -14,7 +14,6 @@ class AddAction(commands.Cog):
     self.bot = bot
 
   async def add_item_to_list(self, ctx, type):
-    pass
     temp = ctx.message.content
     temp = temp.split(' ')
     new_temp = temp[1]
@@ -36,22 +35,15 @@ class AddAction(commands.Cog):
           f"โปรดระบุชื่อ{cau.info_dict[type][2][0]} เช่น \"!add{type} Ratatouille\""
       )
 
-  @commands.command(
-      name="addfood",
-      help="add food in food list for randomization\nformat: !addfood <food>")
+  @commands.command(name="addfood", help="add food in food list for randomization\nformat: !addfood <food>")
   async def add_food(self, ctx):
     await self.add_item_to_list(ctx, "food")
     
-  @commands.command(
-    name="addrestaurant",
-    help="add restaurant in restaurant list for randomization\nformat: !addrestaurant <restaurant>")
+  @commands.command(name="addrestaurant", help="add restaurant in restaurant list for randomization\nformat: !addrestaurant <restaurant>")
   async def add_restaurant(self, ctx):
     await self.add_item_to_list(ctx, "restaurant")
 
-  @commands.command(
-      name="addmovie",
-      help=
-      "add movie in movie list for randomization\nformat: !addmovie <movie>")
+  @commands.command(name="addmovie", help="add movie in movie list for randomization\nformat: !addmovie <movie>")
   async def add_movie(self, ctx):
     await self.add_item_to_list(ctx, "movie")
 

@@ -25,8 +25,7 @@ class ReleaseView(discord.ui.View):
         return interaction.user == self.ctx.author
 
     @discord.ui.button(label="ยืนยัน", style=discord.ButtonStyle.danger)
-    async def confirm(self, interaction: discord.Interaction,
-                      button: discord.ui.Button):
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         data = cpu.load_pokemon_data()
         user_id = str(self.ctx.author.id)
         if user_id in data and 0 <= self.index < len(data[user_id]):

@@ -18,8 +18,7 @@ class RandomFromExternalSrc(commands.Cog):
                           url=data["postLink"],
                           color=0xFFC0CB)
     embed.set_image(url=data["url"])
-    embed.set_footer(
-        text=f"👍 {data['ups']} | r/{data['subreddit']} | by {data['author']}")
+    embed.set_footer(text=f"👍 {data['ups']} | r/{data['subreddit']} | by {data['author']}")
     await ctx.send(embed=embed)
 
   @commands.command(name="joke", help="random joke from JokeAPI")
@@ -35,8 +34,8 @@ class RandomFromExternalSrc(commands.Cog):
       joke = f"{data['setup']}\n||{data['delivery']}||"
 
     embed = discord.Embed(title="Here's a joke for you!",
-                        description=joke,
-                        color=0x00FFFF)
+                          description=joke,
+                          color=0x00FFFF)
     embed.set_footer(text=f"Category: {data['category']}")
     await ctx.send(embed=embed)
 
@@ -56,11 +55,10 @@ class RandomFromExternalSrc(commands.Cog):
             question = "คำถามอะไรบางอย่าง..."
 
         # สร้าง Embed
-        embed = discord.Embed(
-            title=f"ถามว่า: {question}",
-            description=f"🎲 คำตอบ: **{answer}**",
-            color=0x85edda
-        )
+        embed = discord.Embed(title=f"ถามว่า: {question}",
+                              description=f"🎲 คำตอบ: **{answer}**",
+                              color=0x85edda
+                              )
         embed.set_image(url=image_url)
         await ctx.send(embed=embed)
 

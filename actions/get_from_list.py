@@ -1,7 +1,6 @@
 from . import common_action_util as cau
 from discord.ext import commands
 
-
 # แสดงรายการ
 class GetListAction(commands.Cog):
 

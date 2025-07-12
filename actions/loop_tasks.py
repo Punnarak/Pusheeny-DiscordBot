@@ -5,8 +5,8 @@ import datetime
 import os
 from requests.structures import CaseInsensitiveDict
 
-TOKEN = os.environ['GOLD_API_TOKEN']
-CHANNEL_ID = int(os.environ['CHANNEL_ID'])
+TOKEN = os.getenv('GOLD_API_TOKEN')
+CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
 
 class GoldPriceNotifier(commands.Cog):
@@ -19,12 +19,9 @@ class GoldPriceNotifier(commands.Cog):
         self.gold_alert.cancel()
 
     @tasks.loop(time=[
-        datetime.time(hour=8,
-                      tzinfo=datetime.timezone(datetime.timedelta(hours=7))),
-        datetime.time(hour=12,
-                      tzinfo=datetime.timezone(datetime.timedelta(hours=7))),
-        datetime.time(hour=17,
-                      tzinfo=datetime.timezone(datetime.timedelta(hours=7)))
+        datetime.time(hour=8, tzinfo=datetime.timezone(datetime.timedelta(hours=7))),
+        datetime.time(hour=12, tzinfo=datetime.timezone(datetime.timedelta(hours=7))),
+        datetime.time(hour=17, tzinfo=datetime.timezone(datetime.timedelta(hours=7)))
     ])
     async def gold_alert(self):
         channel_id = CHANNEL_ID  # แทนด้วย ID ช่องจริง
@@ -47,11 +44,10 @@ class GoldPriceNotifier(commands.Cog):
                     thb = 1/thb_rate
                     desc += f"\n💵 **1 USD = {thb:,.2f} บาท**"
 
-                embed = discord.Embed(
-                    title="📈 ราคาทองคำ XAU/USD และค่าเงินบาท",
-                    description=desc,
-                    color=0xFFD700,
-                    timestamp=datetime.datetime.utcnow())
+                embed = discord.Embed(title="📈 ราคาทองคำ XAU/USD และค่าเงินบาท",
+                                      description=desc,
+                                      color=0xFFD700,
+                                      timestamp=datetime.datetime.utcnow())
                 embed.set_footer(text="ข้อมูลจาก metals.dev")
                 await channel.send(embed=embed)
 
