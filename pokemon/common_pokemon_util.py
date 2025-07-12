@@ -4,7 +4,7 @@ import aiohttp
 import random
 
 POKEMON_STORAGE = "pokemon/pokemon_storage.json"
-CHANNEL_ID = int(os.environ['CHANNEL_ID'])
+CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
 
 def load_pokemon_data():

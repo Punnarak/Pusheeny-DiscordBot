@@ -3,12 +3,13 @@ from discord.ext import commands
 import random
 from keep_alive import keep_alive
 import os
+from dotenv import load_dotenv
 import requests
 from discord import Embed
-from levels.level_system import (add_xp, create_voice_xp_task
-                                 )  # นำเข้าโมดูลจากโฟลเดอร์ levels
+from levels.level_system import (add_xp, create_voice_xp_task)  # นำเข้าโมดูลจากโฟลเดอร์ levels
 
-TOKEN = os.environ['DISCORD_TOKEN']
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -60,13 +61,13 @@ async def on_message(message):
         await add_xp(message.author, amount=4, context_channel=message.channel)
         do = ["เล่นเกม", "ดูหนัง", "ดูการ์ตูน", "ไถTiktok"]  #4
         i = random.randint(0, len(do) - 1)
-        if (i == 0):
+        if i == 0:
             what = [
                 "DOTA 2", "Genshin Impact", "OSU!", "ROV", "LOL", "Valorant"
             ]  #6
             x = random.randint(0, len(what) - 1)
             await message.channel.send(do[i] + what[x])
-        elif (i == 1):
+        elif i == 1:
             what = [
                 "Action", "Comedy", "Drama", "Fantasy", "Horror", "Mystery",
                 "Romance", "Thriller"
