@@ -1,4 +1,4 @@
-import discord
+# import discord
 from discord.ext import commands
 from . import common_pokemon_util as cpu
 from . import pagination_pokemon as pagi
