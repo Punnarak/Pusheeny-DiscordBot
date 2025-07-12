@@ -19,7 +19,7 @@ class ListPaginationView(discord.ui.View):
         end = start + self.per_page
         embed = discord.Embed(title=f"{cau.info_dict[self.listtype][1]}",
                               description=f"หน้า {self.page + 1} / {self.get_total_pages()} 📃",
-                              color=discord.Color.green()
+                              color=cau.info_dict[self.listtype][3]
                               )
 
         for idx, item in enumerate(self.item_list[start:end], start=start + 1):

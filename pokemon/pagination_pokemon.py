@@ -18,7 +18,7 @@ class PokemonPaginationView(discord.ui.View):
         end = start + self.per_page
         embed = discord.Embed(title=f"📦 โปเกมอนของ {self.ctx.author.display_name}",
                               description=f"หน้า {self.page + 1} / {self.get_total_pages()} 📃",
-                              color=discord.Color.green()
+                              color=0x00ccff
                               )
 
         for idx, pokemon in enumerate(self.pokemon_list[start:end], start=start + 1):
