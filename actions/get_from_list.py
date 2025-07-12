@@ -1,5 +1,6 @@
 from . import common_action_util as cau
 from discord.ext import commands
+from . import pagination_from_list as pagi
 
 # แสดงรายการ
 class GetListAction(commands.Cog):
@@ -7,19 +8,19 @@ class GetListAction(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def output_list(self, input_list, ctx, type):
-        msg = "\n".join(f"{i+1}. {item}" for i, item in enumerate(input_list))
-        # ถ้าข้อความยาวเกินไป อาจต้องแบ่งส่งหลายข้อความ
-        if len(msg) > 1900:
-            temp_output_list = list()
-            for i in range(0, len(msg), 1900):
-                temp_output_list.append(f"```{msg[i:i+1900]}```")
-
-            if temp_output_list:
-                for item in temp_output_list:
-                    await ctx.send(temp_output_list)
-        else:
-            await ctx.send("{}:\n```{}```".format(cau.info_dict[type][1], msg))
+    # async def output_list(self, input_list, ctx, type):
+    #     msg = "\n".join(f"{i+1}. {item}" for i, item in enumerate(input_list))
+    #     # ถ้าข้อความยาวเกินไป อาจต้องแบ่งส่งหลายข้อความ
+    #     if len(msg) > 1900:
+    #         temp_output_list = list()
+    #         for i in range(0, len(msg), 1900):
+    #             temp_output_list.append(f"```{msg[i:i+1900]}```")
+    #
+    #         if temp_output_list:
+    #             for item in temp_output_list:
+    #                 await ctx.send(temp_output_list)
+    #     else:
+    #         await ctx.send("{}:\n```{}```".format(cau.info_dict[type][1], msg))
 
     @commands.command(name="listfood", help="show food list")
     async def get_food_from_list(self, ctx):
@@ -27,7 +28,11 @@ class GetListAction(commands.Cog):
         if not food_list:
             await ctx.send("ยังไม่มีเมนูอาหารในรายการเลย 🍕")
         else:
-            await self.output_list(food_list, ctx, "food")
+            # await self.output_list(food_list, ctx, "food")
+            view = pagi.ListPaginationView(ctx, food_list, "food")
+            embed = view.generate_embed()
+            message = await ctx.send(embed=embed, view=view)
+            view.message = message  # allow on_timeout to work
 
     @commands.command(name="listrestaurant", help="show restaurant list")
     async def get_restaurant_from_list(self, ctx):
@@ -35,7 +40,11 @@ class GetListAction(commands.Cog):
         if not restaurant_list:
             await ctx.send("ยังไม่มีร้านอาหารในรายการเลย 🍽️")
         else:
-            await self.output_list(restaurant_list, ctx, "restaurant")
+            # await self.output_list(restaurant_list, ctx, "restaurant")
+            view = pagi.ListPaginationView(ctx, restaurant_list, "restaurant")
+            embed = view.generate_embed()
+            message = await ctx.send(embed=embed, view=view)
+            view.message = message  # allow on_timeout to work
 
     @commands.command(name="listmovie", help="show movie list")
     async def get_movie_from_list(self, ctx):
@@ -43,7 +52,11 @@ class GetListAction(commands.Cog):
         if not movie_list:
             await ctx.send("ยังไม่มีรายการหนังในรายการเลย 📽️")
         else:
-            await self.output_list(movie_list, ctx, "movie")
+            # await self.output_list(movie_list, ctx, "movie")
+            view = pagi.ListPaginationView(ctx, movie_list, "movie")
+            embed = view.generate_embed()
+            message = await ctx.send(embed=embed, view=view)
+            view.message = message  # allow on_timeout to work
 
 
 async def setup(bot):
