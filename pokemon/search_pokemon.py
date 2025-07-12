@@ -1,6 +1,6 @@
 from discord.ext import commands
 from . import common_pokemon_util as cpu
-from . import search_result_view as srv
+from . import pagination_pokemon as pagi
 
 
 class SearchPokemon(commands.Cog):
@@ -25,7 +25,7 @@ class SearchPokemon(commands.Cog):
             await ctx.send(f"ไม่พบโปเกมอนที่มีคำว่า \"{keyword}\"")
             return
 
-        view = srv.SearchResultsView(ctx, results, keyword)
+        view = pagi.PokemonPaginationView(ctx, results, keyword)
         embed = view.generate_embed()
         message = await ctx.send(embed=embed, view=view)
         view.message = message

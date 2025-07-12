@@ -2,13 +2,14 @@ import discord
 from . import common_pokemon_util as cpu
 
 class PokemonPaginationView(discord.ui.View):
-    def __init__(self, ctx, pokemon_list):
+    def __init__(self, ctx, input_list, keyword=None):
         super().__init__(timeout=60)
         self.ctx = ctx
-        self.pokemon_list = pokemon_list
+        self.pokemon_list = input_list
         self.page = 0
         self.per_page = 5
         self.message = None
+        self.keyword = keyword
 
     def get_total_pages(self):
         return (len(self.pokemon_list) - 1) // self.per_page + 1
@@ -16,7 +17,11 @@ class PokemonPaginationView(discord.ui.View):
     def generate_embed(self):
         start = self.page * self.per_page
         end = start + self.per_page
-        embed = discord.Embed(title=f"📦 โปเกมอนของ {self.ctx.author.display_name}",
+        if not self.keyword:
+            title = f"🔍 ผลการค้นหา: \"{self.keyword}\""
+        else:
+            title = f"📦 โปเกมอนของ {self.ctx.author.display_name}"
+        embed = discord.Embed(title=title,
                               description=f"หน้า {self.page + 1} / {self.get_total_pages()} 📃",
                               color=0x00ccff
                               )
