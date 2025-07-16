@@ -17,7 +17,7 @@ class PokemonPaginationView(discord.ui.View):
     def generate_embed(self):
         start = self.page * self.per_page
         end = start + self.per_page
-        if not self.keyword:
+        if self.keyword:
             title = f"🔍 ผลการค้นหา: \"{self.keyword}\""
         else:
             title = f"📦 โปเกมอนของ {self.ctx.author.display_name}"
